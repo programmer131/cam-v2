@@ -24,11 +24,11 @@
 
 eSPIFFS fileSystem;
 
-#define VERSION 14
+#define VERSION 15
 // Update these with values suitable for your board
-//#define ESP_01
+#define ESP_01
 //#define WEMOS_D1_MINI_PROD
-#define WEMOS_D1_MINI_DEMO
+//#define WEMOS_D1_MINI_DEMO
 #ifdef ESP_01
 #define LIGHT_ON 0
 #define LIGHT_OFF 1
@@ -540,12 +540,14 @@ void setup()
   WiFiManager wm;
   res=wm.autoConnect("AutoConnectAP", "password");
   if(res)
-  {    
+  {
+    timeClient.begin();
     Serial.println("local ip");
     Serial.println(WiFi.localIP());
+    sync_time();    
     get_sunrise_sunset_time();
   }
-  timeClient.begin();
+  
   update_from_memory();
   client.setBufferSize(512);
   client.setServer(mqtt_server, 1883);
@@ -556,7 +558,6 @@ void setup()
   Alarm.timerRepeat(60*60*2, sync_time);//sync time every 2 hours
   Alarm.timerRepeat(3600, send_device_status);//send status every hour
   Alarm.timerRepeat(2, two_sec_call);
-  sync_time();
 }
 void send_device_status()
 {
